@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "CosmosDbProductCatalogue.Console": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "COSMOS_ENDPOINT": "https://product-catalogue-cosmos.documents.azure.com:443/"
+      }
+    }
+  }
+}
