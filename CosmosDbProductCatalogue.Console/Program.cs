@@ -2,14 +2,10 @@
 using CosmosDbProductCatalogue.DataAccess;
 using CosmosDbProductCatalogue.DTOs;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Core;
-using System.ComponentModel;
-using System.Configuration;
-using System.Reflection;
 using System.Text.Json;
 
 Logger logger = new LoggerConfiguration()
@@ -26,29 +22,28 @@ IHost host = Host.CreateDefaultBuilder(args)
             // CosmosClient options:
             //   1. initialise with a connection string
 
-            services.AddSingleton(s =>
-                new CosmosClient(
-                    ctx.Configuration["CosmosDbConnectionString"],
-                    new CosmosClientOptions() { AllowBulkExecution = true })
-            );
-
-            //   2. initialise with DefaultAzureCredential - recommended in docs
             //services.AddSingleton(
             //    s => new CosmosClient(
-            //            "https://product-catalogue-db.documents.azure.com:443/",
-            //            tokenCredential: new DefaultAzureCredential(),
+            //            ctx.Configuration["CosmosDbConnectionString"],
             //            clientOptions: new CosmosClientOptions() { AllowBulkExecution = true }));
+
+            //   2. initialise with DefaultAzureCredential - recommended in docs
+            services.AddSingleton(
+                s => new CosmosClient(
+                        "https://product-catalogue-db.documents.azure.com:443/",
+                        tokenCredential: new DefaultAzureCredential(),
+                        clientOptions: new CosmosClientOptions() { AllowBulkExecution = true }));
         })
     .UseSerilog()
     .Build();
 
 CosmosClient cosmosClient = host.Services.GetRequiredService<CosmosClient>();
-DbManagement dbService = new DbManagement(cosmosClient);
+//DbManagement dbService = new DbManagement(cosmosClient);
 
 logger.Information("Cosmos Client: {@Client}", cosmosClient.Endpoint);
 try
 {
-    await dbService.EnsureDbAndContainersCreated();
+    //await dbService.EnsureDbAndContainersCreated();
 
     logger.Information("DB and containers created");
 
@@ -71,32 +66,53 @@ try
     {
         tasks.Add(
             container.CreateItemAsync(item, new PartitionKey(item.id))
-                .ContinueWith(response =>
-                {
-                    if (!response.IsCompletedSuccessfully)
+                .ContinueWith(
+                    response =>
                     {
-                        AggregateException innerExceptions = response.Exception.Flatten();
+                        if (!response.IsCompletedSuccessfully)
+                        {
+                            AggregateException innerExceptions = response.Exception.Flatten();
 
-                        if (innerExceptions.InnerExceptions.FirstOrDefault(inner => inner is CosmosException) is CosmosException cosmosException)
-                        {
-                            logger.Error("Received {@statusCode} :: {@message}", cosmosException.StatusCode, cosmosException.Message);
+                            if (innerExceptions.InnerExceptions.FirstOrDefault(inner => inner is CosmosException) is CosmosException cosmosException)
+                            {
+                                logger.Error(
+                                    "Received {@statusCode} :: {@message}",
+                                    cosmosException.StatusCode,
+                                    cosmosException.Message);
+                            }
+                            else
+                            {
+                                logger.Error("Exception: {@ex}", innerExceptions.InnerExceptions.FirstOrDefault());
+                            }
                         }
-                        else
-                        {
-                            logger.Error("Exception: {@ex}", innerExceptions.InnerExceptions.FirstOrDefault());
-                        }
-                    }
-                }
-            )
-        );
+                    }));
     }
 
     // await write to CosmosDB categories container
     await Task.WhenAll(tasks);
-} catch(Exception ex)
+}
+catch (Exception ex)
 {
     logger.Error(ex.Message);
 }
+
+// queries
+Queries queries = new Queries(cosmosClient, logger);
+
+await queries.GetAllCategories();
+await queries.GetCategoriesNamedBrakes();
+await queries.GetCategoriesByIQueryable();
+
+// updates
+Updates updates = new Updates(cosmosClient, logger);
+
+await updates.UpsertADocument();
+await updates.ReplaceADocument();
+
+// delete an item
+Deletes deletes = new Deletes(cosmosClient, logger);
+
+await deletes.DeleteOneItem();
 
 logger.Information("DONE");
 

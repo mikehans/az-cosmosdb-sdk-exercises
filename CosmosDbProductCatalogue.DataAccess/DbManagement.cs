@@ -16,10 +16,6 @@ public class DbManagement : IDbManagement
     public DbManagement(CosmosClient client)
     {
         _client = client;
-        // TODO: Create the client as a singleton
-        //CosmosClient _client = new CosmosClient(
-        //    accountEndpoint: Environment.GetEnvironmentVariable("COSMOS_ENDPOINT"),
-        //    tokenCredential: new DefaultAzureCredential());
     }
 
     public async Task<bool> EnsureDbAndContainersCreated()
