@@ -48,6 +48,7 @@ public class Updates
                 };
                 ItemResponse<CategoryDTO> upsertItem = await container.UpsertItemAsync(updatedCategory, new PartitionKey(updatedCategory.id));
                 logger.Information($"upsert status code: {upsertItem.StatusCode}");
+                logger.Information($"RU cost: {upsertItem.RequestCharge}");
             }
         }
     }
@@ -82,9 +83,10 @@ public class Updates
                     parent = result.parent
                 };
 
-                var response = await container.ReplaceItemAsync<CategoryDTO>(updatedCategory, result.id, new PartitionKey(result.id));
+                ItemResponse<CategoryDTO> response = await container.ReplaceItemAsync<CategoryDTO>(updatedCategory, result.id, new PartitionKey(result.id));
 
                 logger.Information($"Replace result status code: {response.StatusCode}");
+                logger.Information($"RU cost: {response.RequestCharge}");
             }
 
 

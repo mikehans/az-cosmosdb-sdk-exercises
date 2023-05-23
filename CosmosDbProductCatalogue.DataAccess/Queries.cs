@@ -63,7 +63,7 @@ public class Queries
                 query: "SELECT * FROM categories c WHERE c.name = @categoryName"
             ).WithParameter("@categoryName", "Brakes");
 
-        using var filteredFeed = container.GetItemQueryIterator<CategoryDTO>(
+        using FeedIterator<CategoryDTO> filteredFeed = container.GetItemQueryIterator<CategoryDTO>(
                     queryDefinition: query);
 
         while (filteredFeed.HasMoreResults)
@@ -87,7 +87,7 @@ public class Queries
 
         IOrderedQueryable<CategoryDTO> queryable = container.GetItemLinqQueryable<CategoryDTO>();
 
-        var matches = queryable.Where(c => c.parent.Id == "cat2");
+        IQueryable<CategoryDTO> matches = queryable.Where(c => c.parent.Id == "cat2");
 
         using FeedIterator<CategoryDTO> linqFeed = matches.ToFeedIterator();
 

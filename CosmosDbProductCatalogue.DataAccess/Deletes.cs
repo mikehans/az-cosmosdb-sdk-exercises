@@ -22,10 +22,10 @@ public class Deletes
         logger.Information("\nDELETE");
         logger.Information("\tWill delete Road Bikes sub-category (ID: cat92)");
 
-        var database = client.GetDatabase("product-catalogue");
-        var container = database.GetContainer("categories");
+        Database database = client.GetDatabase("product-catalogue");
+        Container container = database.GetContainer("categories");
 
-        var query = new QueryDefinition(
+        QueryDefinition query = new QueryDefinition(
                 query: "SELECT * FROM categories c WHERE c.id = @identifier"
             ).WithParameter("@identifier", "cat92");
 
