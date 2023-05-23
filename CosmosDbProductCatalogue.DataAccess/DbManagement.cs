@@ -51,7 +51,6 @@ public class DbManagement : IDbManagement
         Database database = _client.GetDatabase(id: "product-catalogue");
 
         ContainerResponse containerResponse = await database.CreateContainerIfNotExistsAsync("categories", "/id");
-        ContainerResponse containerResponse2 = await database.CreateContainerIfNotExistsAsync("products", "/productId");
 
         return true;
     }
