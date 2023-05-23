@@ -12,7 +12,7 @@ You will need to create and configure the ```appsettings.json``` file in the roo
 }
 ```
 
-The project is hard-coded to look for a database called ```product-catalogue``` and a container called ```categories```.
+The project is hard-coded to look for a database called ```product-catalogue``` and a container called ```categories```. You'll need to create these ahead of running the code.
 
 ## Program.cs
 ### CosmosClient configuration
