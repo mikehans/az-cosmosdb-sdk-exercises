@@ -1,4 +1,5 @@
-﻿using Azure.Identity;
+﻿using System.Configuration;
+using Azure.Identity;
 using CosmosDbProductCatalogue.DataAccess;
 using CosmosDbProductCatalogue.DTOs;
 using Microsoft.Azure.Cosmos;
@@ -22,17 +23,17 @@ IHost host = Host.CreateDefaultBuilder(args)
             // CosmosClient options:
             //   1. initialise with a connection string
 
-            //services.AddSingleton(
-            //    s => new CosmosClient(
-            //            ctx.Configuration["CosmosDbConnectionString"],
-            //            clientOptions: new CosmosClientOptions() { AllowBulkExecution = true }));
-
-            //   2. initialise with DefaultAzureCredential - recommended in docs
             services.AddSingleton(
                 s => new CosmosClient(
-                        "https://product-catalogue-db.documents.azure.com:443/",
-                        tokenCredential: new DefaultAzureCredential(),
+                        ctx.Configuration["CosmosDbConnectionString"],
                         clientOptions: new CosmosClientOptions() { AllowBulkExecution = true }));
+
+            //   2. initialise with DefaultAzureCredential - recommended in docs
+            // services.AddSingleton(
+            //     s => new CosmosClient(
+            //             ctx.Configuration["DatabaseUri"],
+            //             tokenCredential: new DefaultAzureCredential(),
+            //             clientOptions: new CosmosClientOptions() { AllowBulkExecution = true }));
         })
     .UseSerilog()
     .Build();
