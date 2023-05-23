@@ -4,6 +4,7 @@ You will need to create and configure the ```appsettings.json``` file in the roo
 ```json
 {
   "CosmosDbConnectionString": "AccountEndpoint=https://localhost:8081/;AccountKey=[insert key here];"
+  "DatabaseUri": "https://localhost:8081"
 }
 ```
 
