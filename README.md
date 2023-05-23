@@ -12,6 +12,8 @@ You will need to create and configure the ```appsettings.json``` file in the roo
 }
 ```
 
+The project is hard-coded to look for a database called ```product-catalogue``` and a container called ```categories```.
+
 ## Program.cs
 ### CosmosClient configuration
 The DI container contains code to configure the ```CosmosClient``` in two ways (see comments in the code): 
